@@ -12,6 +12,7 @@ public class BookResource {
 
     @GetMapping("/{bookId}")
     public Book getBookInfo(@PathVariable("bookId") String bookId){
+
         return new Book("SN00254", "Harry Potter");
     }
 

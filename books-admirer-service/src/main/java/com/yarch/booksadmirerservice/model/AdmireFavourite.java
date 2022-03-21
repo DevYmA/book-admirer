@@ -1,4 +1,4 @@
-package com.yarch.booksadmirerservice.resources;
+package com.yarch.booksadmirerservice.model;
 
 public class AdmireFavourite {
 
