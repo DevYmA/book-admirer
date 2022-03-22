@@ -28,7 +28,7 @@ public class AdmireFavouriteResource {
 
         UserRating userRating = webCliBuilder.build()
                 .get()
-                .uri("http://localhost:8083/api/v1/ratings/users/"+userId)
+                .uri("http://BOOK-RATING-SERVICE/api/v1/ratings/users/"+userId)
                 .retrieve()
                 .bodyToMono(UserRating.class)
                 .block();
@@ -36,7 +36,7 @@ public class AdmireFavouriteResource {
         List<AdmireFavourite> admireFavourites = userRating.getRatings().stream().map(rating -> {
             Book book = webCliBuilder.build()
                     .get()
-                    .uri("http://localhost:8082/api/v1/books/"+rating.getBookId())
+                    .uri("http://BOOKS-INFO-SERVICE/api/v1/books/"+rating.getBookId())
                     .retrieve()
                     .bodyToMono(Book.class)
                     .block();

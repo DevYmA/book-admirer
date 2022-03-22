@@ -1,3 +1,6 @@
+spring:
+  application:
+    name: book-rating-service
 server:
   port: 8083
 
