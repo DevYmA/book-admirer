@@ -1,5 +1,7 @@
 package com.yarch.booksadmirerservice.resources;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.ribbon.proxy.annotation.Hystrix;
 import com.yarch.booksadmirerservice.model.AdmireFavourite;
 import com.yarch.booksadmirerservice.model.Book;
 import com.yarch.booksadmirerservice.model.Rating;
@@ -24,6 +26,7 @@ public class AdmireFavouriteResource {
     private WebClient.Builder webCliBuilder;
 
     @GetMapping("/{userId}")
+    @HystrixCommand(fallbackMethod = "getFallbackFavorites")
     public List<AdmireFavourite> getFavorites(@PathVariable("userId") String userId){
 
         UserRating userRating = webCliBuilder.build()
@@ -44,5 +47,9 @@ public class AdmireFavouriteResource {
             return new AdmireFavourite("User ", book.getName(), rating.getRating());
         }).collect(Collectors.toList());
         return admireFavourites;
+    }
+
+    public List<AdmireFavourite> getFallbackFavorites(){
+        return Arrays.asList(new AdmireFavourite("no-movies", "no-des", 0));
     }
 }
