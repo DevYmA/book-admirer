@@ -1,20 +1,16 @@
 package com.yarch.booksadmirerservice.resources;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.ribbon.proxy.annotation.Hystrix;
 import com.yarch.booksadmirerservice.model.AdmireFavourite;
 import com.yarch.booksadmirerservice.model.Book;
-import com.yarch.booksadmirerservice.model.Rating;
 import com.yarch.booksadmirerservice.model.UserRating;
+import com.yarch.booksadmirerservice.services.InfoService;
+import com.yarch.booksadmirerservice.services.RatingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,33 +19,21 @@ import java.util.stream.Collectors;
 public class AdmireFavouriteResource {
 
     @Autowired
-    private WebClient.Builder webCliBuilder;
+    private RatingService ratingService;
+
+    @Autowired
+    private InfoService infoService;
 
     @GetMapping("/{userId}")
-    @HystrixCommand(fallbackMethod = "getFallbackFavorites")
-    public List<AdmireFavourite> getFavorites(@PathVariable("userId") String userId){
+    public List<AdmireFavourite> getFavorites(@PathVariable("userId") String userId) {
 
-        UserRating userRating = webCliBuilder.build()
-                .get()
-                .uri("http://BOOK-RATING-SERVICE/api/v1/ratings/users/"+userId)
-                .retrieve()
-                .bodyToMono(UserRating.class)
-                .block();
+        UserRating userRating = ratingService.getUserRatings(userId);
 
         List<AdmireFavourite> admireFavourites = userRating.getRatings().stream().map(rating -> {
-            Book book = webCliBuilder.build()
-                    .get()
-                    .uri("http://BOOKS-INFO-SERVICE/api/v1/books/"+rating.getBookId())
-                    .retrieve()
-                    .bodyToMono(Book.class)
-                    .block();
-
+            Book book = infoService.getBookInfo(rating.getBookId());
             return new AdmireFavourite("User ", book.getName(), rating.getRating());
         }).collect(Collectors.toList());
         return admireFavourites;
     }
 
-    public List<AdmireFavourite> getFallbackFavorites(){
-        return Arrays.asList(new AdmireFavourite("no-movies", "no-des", 0));
-    }
 }
