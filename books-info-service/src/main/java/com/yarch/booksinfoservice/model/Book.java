@@ -1,9 +1,17 @@
 package com.yarch.booksinfoservice.model;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
 public class Book {
 
+    @Id
     private String id;
     private String name;
+
+    public Book() {
+    }
 
     public Book(String id, String name) {
         this.id = id;
